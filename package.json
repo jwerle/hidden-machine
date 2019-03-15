@@ -1,0 +1,19 @@
+{
+  "name": "hidden-machine",
+  "version": "0.0.1",
+  "description": "Compile javascript node modules into native node modules",
+  "main": "index.js",
+  "scripts": {
+    "test": ":"
+  },
+  "keywords": [
+    "compile",
+    "javascript",
+    "native",
+    "module",
+    "sodium",
+    "secret"
+  ],
+  "author": "Joseph Werle <joseph.werle@gmail.com>",
+  "license": "MIT"
+}

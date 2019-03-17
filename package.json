@@ -9,6 +9,7 @@
   },
   "scripts": {
     "postinstall": "node $(node -pe 'require.resolve(\"sodium-native/preinstall\")')",
+    "lint": ":",
     "test": ":"
   },
   "keywords": [

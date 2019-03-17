@@ -8,6 +8,7 @@
     "hmc": "bin/hmc"
   },
   "scripts": {
+    "postinstall": "node $(node -pe 'require.resolve(\"sodium-native/preinstall\")')",
     "test": ":"
   },
   "keywords": [

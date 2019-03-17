@@ -45,10 +45,10 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/arablocks/hidden-machine.git"
+    "url": "git+https://github.com/jwerle/hidden-machine.git"
   },
   "bugs": {
-    "url": "https://github.com/arablocks/hidden-machine/issues"
+    "url": "https://github.com/jwerle/hidden-machine/issues"
   },
-  "homepage": "https://github.com/arablocks/hidden-machine#readme"
+  "homepage": "https://github.com/jwerle/hidden-machine#readme"
 }

@@ -1,0 +1,111 @@
+#!/usr/bin/env node
+
+const { yellow, green, bold, blue, cyan, red } = require('chalk')
+const minimist = require('minimist')
+const { log } = require('../lib/log')
+const debug = require('debug')('hmc')
+const Batch = require('batch')
+const utils = require('../lib/utils')
+const path = require('path')
+const pkg = require('../package.json')
+const hmc = require('../')
+const os = require('os')
+
+const CONCURRENCY = os.cpus().length
+
+const argv = minimist(process.argv.slice(2), {
+  boolean: [ 'debug', 'help', 'version' ],
+  string: [ 'output' ],
+  number: [ 'jobs' ],
+  alias: {
+    o: 'output',
+    j: 'jobs',
+    h: 'help',
+    D: 'debug',
+    V: 'version',
+  }
+})
+
+const usage = `usage: hmc: [-hDV] [options] <input>
+
+where options can be:
+
+  -j, --jobs=[N]      Number of concurrent jobs. (default: ${CONCURRENCY})
+  -o, --output=<dir>  Output directory. (default: build/)
+  -h, --help          Print this message
+  -D, --debug         Enable debug output
+  -V, --version       Print program version
+
+
+Enable debug output by using the '-D, --debug' flag or set the
+'DEBUG=hidden-machine*,hmc*' environment variable.
+
+Report bugs to <${pkg.bugs.url}>. `
+
+process.on('unhandledRejection', debug)
+process.on('uncaughtException', debug)
+
+if (argv.debug) {
+  require('debug').enable('hidden-machine*,hmc*')
+}
+
+if (argv.help) {
+  console.error(usage)
+  process.exit(0)
+}
+
+if (argv.version) {
+  console.log(pkg.version)
+  process.exit(0)
+}
+
+
+const concurrency = 'jobs' in argv ? argv.jobs : CONCURRENCY
+const jobs = new Batch().concurrency(concurrency)
+
+const opts = {
+  onerror(err) {
+    debug(err)
+    log(process.stderr, bold(red('error: ')), err.message)
+  },
+
+  onbeforestep(step) {
+    log(process.stdout, bold(yellow('before: ')), '%s', step.name, step)
+  },
+
+  onstep(step) {
+    log(process.stdout, bold(cyan('step: ')), '%s', step.name, step)
+  },
+
+  onafterstep(step) {
+    log(process.stdout, bold(green('after: ')), '%s', step.name, step)
+  },
+}
+
+if ('output' in argv) {
+  opts.compile = {
+    build: path.resolve(argv.output)
+  }
+}
+
+for (const input of argv._) {
+  jobs.push((next) => {
+    utils.promisedErrBack(hmc(path.resolve(input), opts), (err, results) => {
+      if (err) { return next(err) }
+      log(process.stdout, bold(blue('okay: ')), '%s finished', input)
+      next(null, results)
+    })
+  })
+}
+
+jobs.end((err, results) => {
+  if (err) {
+    opts.onerror(err)
+  } else {
+    for (const result of results) {
+      log(process.stdout, bold(blue(`${result.input}: `)), 'pubkey= %s', result.publicKey.toString('hex'))
+      log(process.stdout, bold(blue(`${result.input}: `)), 'secret= %s', result.secret.toString('hex'))
+      log(process.stdout, bold(blue(`${result.input}: `)), 'key= %s', result.key.toString('hex'))
+    }
+  }
+})

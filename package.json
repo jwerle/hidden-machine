@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "description": "Compile javascript node modules into native node modules",
   "main": "index.js",
+  "bin": {
+    "hidden-machine": "bin/hmc",
+    "hmc": "bin/hmc"
+  },
   "scripts": {
     "test": ":"
   },
@@ -15,5 +19,36 @@
     "secret"
   ],
   "author": "Joseph Werle <joseph.werle@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@zeit/ncc": "^0.16.0",
+    "batch": "^0.6.1",
+    "chalk": "^2.4.2",
+    "debug": "^4.1.1",
+    "extend": "^3.0.2",
+    "increment-buffer": "^1.0.1",
+    "minimist": "^1.2.0",
+    "mkdirp": "^0.5.1",
+    "nanotimer": "^0.3.15",
+    "napi-macros": "^1.8.2",
+    "node-gyp": "^3.8.0",
+    "node-gyp-build": "^3.8.0",
+    "pify": "^4.0.1",
+    "rc": "^1.2.8",
+    "rimraf": "^2.6.3",
+    "sodium-native": "^2.3.0",
+    "strip-indent": "^2.0.0"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arablocks/hidden-machine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/arablocks/hidden-machine/issues"
+  },
+  "homepage": "https://github.com/arablocks/hidden-machine#readme"
 }

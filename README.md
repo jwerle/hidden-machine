@@ -18,7 +18,7 @@ In your package.json, add the following `"prepublish"` script:
   "main": "index.js",
   "scripts": {
     "install": "cd dist/ && node-gyp-build",
-    "prepublish": "hidden-machine lib/index.js -o dist/"
+    "prepublish": "hidden-machine lib/index.js -o dist/ --key=$SHARED_APP_KEY"
   }
 ...
 ```
@@ -32,7 +32,24 @@ const path = require('path')
 module.exports = require('node-gyp-build')(path.resolve(__dirname, 'dist'))
 ```
 
-and the calling code calls `module.initialize(Buffer.from(sharedApplicationKey, 'hex'))`.
+and the calling code calls `require('your-hidden-module').initialize(Buffer.from(sharedApplicationKey, 'hex'))`.
+
+where `sharedApplicationKey` can be generated with by running the following:
+
+```sh
+$ hidden-machine --keygen ## use --json for JSON output
+...
+ hidden-machine: publicKey= f4e6a97ae2a2d568de4f9b4144e736cd71ab338881cee6c44a48ced4cd66b504
+ hidden-machine: secretKey= 3f9632bc7dc125fe399ed2f7739233274428bc96bdb8ece9ba5937a988fb5b4df4e6a97ae2a2d568de4f9b4144e736cd71ab338881cee6c44a48ced4cd66b504
+ hidden-machine: secret= 211536a908a2e650f00c38867c9a4696a1d073323a0c2ac6a1a8f4012265f82a
+ hidden-machine: key= 3f9632bc7dc125fe399ed2f7739233274428bc96bdb8ece9ba5937a988fb5b4d
+```
+
+and can be used when publishing or packing your module:
+
+```sh
+$ SHARED_APP_KEY=3f9632bc7dc125fe399ed2f7739233274428bc96bdb8ece9ba5937a988fb5b4d npm publish # or pack
+```
 
 ## Example
 
@@ -44,7 +61,7 @@ require('hidden-machine')('/path/to/input.js', {
   secretKey: keyPair.secretKey,
   key: sharedApplicationKey,
 }).then((result) => {
-  for (cosnt step of result.steps) {
+  for (const step of result.steps) {
     if ('Compiler' === step.name) {
       console.log(step.output)
     }

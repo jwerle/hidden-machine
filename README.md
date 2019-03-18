@@ -17,22 +17,21 @@ In your package.json, add the following `"prepublish"` script:
 ...
   "main": "index.js",
   "scripts": {
-    "install": "cd dist/ && node-gyp-build",
-    "prepublish": "hidden-machine lib/index.js -o dist/ --key=$SHARED_APP_KEY"
+    "install": "node-gyp-build",
+    "prepublish": "hidden-machine lib/index.js -o . --key=$SHARED_APP_KEY"
   }
 ...
 ```
 
-where `lib/` is the entry path to your module code `dist/` is the
+where `lib/` is the entry path to your module code `./` is the
 output directory for a C file and a `binding.gyp` file, and `index.js`
 exports look something like:
 
 ```js
-const path = require('path')
-module.exports = require('node-gyp-build')(path.resolve(__dirname, 'dist'))
+module.exports = (key) => require('node-gyp-build')(__dirname).initialize(key)
 ```
 
-and the calling code calls `require('your-hidden-module').initialize(Buffer.from(sharedApplicationKey, 'hex'))`.
+and the calling code calls `require('your-hidden-module')(Buffer.from(sharedApplicationKey, 'hex'))`.
 
 where `sharedApplicationKey` can be generated with by running the following:
 

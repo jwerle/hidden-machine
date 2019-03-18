@@ -114,6 +114,9 @@ including:
 * `opts.bundle.concurrency` - The number of concurrent tasks the bundler
   will for each input target.
 
+## See Also
+
+* [Example HTTP server compiled with hidden-machine](https://github.com/jwerle/hidden-machine-example-http)
 
 ## License
 

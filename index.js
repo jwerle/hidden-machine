@@ -12,12 +12,19 @@ const pify = require('pify')
 const rc = require('./lib/rc')
 
 const {
+  crypto_secretbox_NONCEBYTES,
   crypto_sign_PUBLICKEYBYTES,
   crypto_sign_SECRETKEYBYTES,
   crypto_sign_SEEDBYTES,
+  crypto_kdf_KEYBYTES,
+
   crypto_sign_seed_keypair,
   crypto_generichash_batch,
 } = require('sodium-native')
+
+function ensureBufferWithSize(buffer, size) {
+  return Buffer.isBuffer(buffer) && buffer.length >= size ? buffer : null
+}
 
 async function start(input, opts) {
   const queue = new Batch().concurrency(1)
@@ -25,18 +32,55 @@ async function start(input, opts) {
 
   opts = extend(true, rc, utils.ensureObject(opts))
 
-  const publicKey = opts.publicKey || Buffer.allocUnsafe(crypto_sign_PUBLICKEYBYTES)
-  const secretKey = opts.secretKey || Buffer.allocUnsafe(crypto_sign_SECRETKEYBYTES)
-  const secret = opts.secret || randomBytes(32)
-  const nonce = opts.nonce || null
-  const seed = opts.seed || Buffer.allocUnsafe(crypto_sign_SEEDBYTES)
-  const key = (opts.key || secretKey).slice(0, 32)
+  const publicKey = (
+    ensureBufferWithSize(
+      utils.toBuffer(opts.publicKey, 'hex'),
+      crypto_sign_PUBLICKEYBYTES) ||
+    Buffer.allocUnsafe(crypto_sign_PUBLICKEYBYTES)
+  )
+
+  const secretKey = (
+    ensureBufferWithSize(
+      utils.toBuffer(opts.secretKey, 'hex'),
+      crypto_sign_SECRETKEYBYTES) ||
+    Buffer.allocUnsafe(crypto_sign_SECRETKEYBYTES)
+  )
+
+  const secret = (
+    ensureBufferWithSize(utils.toBuffer(opts.secret), 8) ||
+    randomBytes(32)
+  )
+
+  const nonce = ensureBufferWithSize(
+    utils.toBuffer(opts.nonce, 'hex'),
+    crypto_secretbox_NONCEBYTES
+  )
+
+  const seed = (
+    ensureBufferWithSize(
+      utils.toBuffer(opts.seed, 'hex'),
+      crypto_sign_SEEDBYTES) ||
+    Buffer.allocUnsafe(crypto_sign_SEEDBYTES)
+  )
+
+  const key = (
+    ensureBufferWithSize(
+      utils.toBuffer(opts.key, 'hex'),
+      crypto_kdf_KEYBYTES) ||
+    secretKey.slice(0, crypto_kdf_KEYBYTES)
+  )
 
   if (!opts.publicKey || !opts.secretKey) {
     if (!opts.seed) {
       crypto_generichash_batch(seed, [ secret ])
     }
     crypto_sign_seed_keypair(publicKey, secretKey, seed)
+  }
+
+  if (true === opts.keygen) {
+    return {
+      publicKey, secretKey, secret, key
+    }
   }
 
   opts.sign.publicKey = publicKey

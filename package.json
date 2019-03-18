@@ -33,8 +33,6 @@
     "mkdirp": "^0.5.1",
     "nanotimer": "^0.3.15",
     "napi-macros": "^1.8.2",
-    "node-gyp": "^3.8.0",
-    "node-gyp-build": "^3.8.0",
     "pify": "^4.0.1",
     "rc": "^1.2.8",
     "rimraf": "^2.6.3",

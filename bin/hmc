@@ -14,14 +14,15 @@ const os = require('os')
 const CONCURRENCY = os.cpus().length
 
 const argv = minimist(process.argv.slice(2), {
-  boolean: [ 'debug', 'help', 'version' ],
+  boolean: [ 'debug', 'help', 'json', 'keygen', 'version' ],
   string: [ 'output' ],
   number: [ 'jobs' ],
   alias: {
-    o: 'output',
-    j: 'jobs',
-    h: 'help',
     D: 'debug',
+    h: 'help',
+    j: 'jobs',
+    k: 'key',
+    o: 'output',
     V: 'version',
   }
 })
@@ -30,10 +31,13 @@ const usage = `usage: hmc: [-hDV] [options] <input>
 
 where options can be:
 
-  -j, --jobs=[N]      Number of concurrent jobs. (default: ${CONCURRENCY})
-  -o, --output=<dir>  Output directory. (default: build/)
-  -h, --help          Print this message
   -D, --debug         Enable debug output
+  -h, --help          Print this message
+  -j, --jobs=[N]      Number of concurrent jobs. (default: ${CONCURRENCY})
+  --json              Output JSON
+  -k, --key=<key>     Hex encoded shared secret key
+  --keygen            Generate keys
+  -o, --output=<dir>  Output directory. (default: build/)
   -V, --version       Print program version
 
 
@@ -59,28 +63,27 @@ if (argv.version) {
   process.exit(0)
 }
 
-
 const concurrency = 'jobs' in argv ? argv.jobs : CONCURRENCY
 const jobs = new Batch().concurrency(concurrency)
 
-const opts = {
+const opts = Object.assign({}, argv, {
   onerror(err) {
     debug(err)
     log(process.stderr, bold(red('error: ')), err.message)
   },
 
   onbeforestep(step) {
-    log(process.stdout, bold(yellow('before: ')), '%s', step.name, step)
+    log(process.stderr, bold(yellow('before: ')), '%s', step.name, step)
   },
 
   onstep(step) {
-    log(process.stdout, bold(cyan('step: ')), '%s', step.name, step)
+    log(process.stderr, bold(cyan('step: ')), '%s', step.name, step)
   },
 
   onafterstep(step) {
-    log(process.stdout, bold(green('after: ')), '%s', step.name, step)
+    log(process.stderr, bold(green('after: ')), '%s', step.name, step)
   },
-}
+})
 
 if ('output' in argv) {
   opts.compile = {
@@ -88,24 +91,32 @@ if ('output' in argv) {
   }
 }
 
-for (const input of argv._) {
-  jobs.push((next) => {
-    utils.promisedErrBack(hmc(path.resolve(input), opts), (err, results) => {
-      if (err) { return next(err) }
-      log(process.stdout, bold(blue('okay: ')), '%s finished', input)
-      next(null, results)
-    })
+const [ input = process.cwd() ] = argv._
+jobs.push((next) => {
+  utils.promisedErrBack(hmc(path.resolve(input), opts), (err, results) => {
+    if (err) { return next(err) }
+    log(process.stderr, bold(blue('okay: ')), '%s finished', input)
+    next(null, results)
   })
-}
+})
 
 jobs.end((err, results) => {
   if (err) {
     opts.onerror(err)
   } else {
-    for (const result of results) {
-      log(process.stdout, bold(blue(`${result.input}: `)), 'pubkey= %s', result.publicKey.toString('hex'))
-      log(process.stdout, bold(blue(`${result.input}: `)), 'secret= %s', result.secret.toString('hex'))
-      log(process.stdout, bold(blue(`${result.input}: `)), 'key= %s', result.key.toString('hex'))
+    const [ result ] = results
+    if (argv.json) {
+      console.log(JSON.stringify({
+        publicKey: result.publicKey.toString('hex'),
+        secretKey: result.secretKey.toString('hex'),
+        secret: result.secret.toString('hex'),
+        key: result.key.toString('hex'),
+      }))
+    } else {
+      log(process.stderr, 'publicKey= ', result.publicKey.toString('hex'))
+      log(process.stderr, 'secretKey= ', result.secretKey.toString('hex'))
+      log(process.stderr, 'secret= ', result.secret.toString('hex'))
+      log(process.stderr, 'key= ', result.key.toString('hex'))
     }
   }
 })

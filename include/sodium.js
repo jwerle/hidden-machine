@@ -1,1 +1,6 @@
-module.exports = require('libsodium-prebuilt/paths').include
+module.exports = path.resolve(
+  path.relative('.',
+    path.join(
+      path.dirname(require.resolve('sodium-native')),
+      path.join('libsodium', 'src', 'libsodium', 'include')
+    )))

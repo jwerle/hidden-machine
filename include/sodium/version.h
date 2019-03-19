@@ -2,7 +2,7 @@
 #ifndef sodium_version_H
 #define sodium_version_H
 
-#include "export.h"
+#include <sodium/export.h>
 
 #define SODIUM_VERSION_STRING "1.0.17"
 

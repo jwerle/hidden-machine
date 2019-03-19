@@ -12,9 +12,19 @@ const dirname = path.resolve(
       path.dirname(require.resolve('sodium-native')),
       `/prebuilds/${ua}`)))
 
-const ldflags = [
+const ldflags = []
+
+if ('darwin' == platform) {
+  ldflags.push(
+    `-install_name`,
+    `@rpath/libsodium.dylib`,
+  )
+}
+
+ldflags.push(
   `-rpath=${dirname}`,
   `-rpath='$$ORIGIN'`,
-]
+)
+
 
 module.exports = ldflags.join(',')

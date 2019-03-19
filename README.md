@@ -68,6 +68,52 @@ require('hidden-machine')('/path/to/input.js', {
 })
 ```
 
+### Example Generated `binding.gyp`
+
+```gyp
+{ # auto generated: Tue Mar 19 2019 19:47:54 GMT-0400 (Eastern Daylight Time)
+  "targets": [{
+    "target_name": "module",
+
+    "sources": [
+      "module.c"
+    ],
+
+    "variables": {
+      "target_arch%": "<!(node -p \"require('hidden-machine/arch')\")>"
+    },
+
+    "cflags": [
+      "<!(node -p \"require('hidden-machine/cflags')\")"
+    ],
+
+    "xcode_settings": {
+      "OTHER_CFLAGS": [ "<!(node -p \"require('hidden-machine/cflags')\")" ]
+    },
+
+    "libraries": [
+      "<!(node -p \"require('hidden-machine/libraries/sodium')\")"
+    ],
+
+    "include_dirs": [
+      "<!(node -p \"require('hidden-machine/include/sodium')\")",
+      "<!(node -p \"require('hidden-machine/include/napi')\")",
+      "<!(node -p \"require('hidden-machine/include')\")"
+    ],
+
+    "conditions": [
+      ["OS != 'mac' and OS != 'win'", {
+        "link_settings": {
+          "libraries": [
+            "-Wl,<!(node -p \"require('hidden-machine/ldflags')\")"
+          ]
+        }
+      }]
+    ]
+  }]
+}
+```
+
 ## API
 
 ### `require('hidden-machine')(input, opts)`

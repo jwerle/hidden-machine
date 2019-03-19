@@ -117,6 +117,7 @@ including:
 ## See Also
 
 * [Example HTTP server compiled with hidden-machine](https://github.com/jwerle/hidden-machine-example-http)
+* [A hidden machine to wish a secret happy birthday to @vipyne](https://github.com/jwerle/happy-birthday-vipyne)
 
 ## License
 

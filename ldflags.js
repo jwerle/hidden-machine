@@ -16,8 +16,8 @@ const ldflags = []
 
 if ('linux' === platform) {
   ldflags.push(
-    `-Wl,-rpath=${dirname}`,
-    `-Wl,-rpath='$$ORIGIN'`,
+    `-Wl,-rpath,${dirname}`,
+    `-Wl,-rpath,'$$ORIGIN'`,
   )
 }
 

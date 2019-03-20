@@ -21,7 +21,7 @@ if ('linux' === platform) {
   )
 }
 
-if ('mac' === platform) {
+if ('darwin' === platform) {
   ldflags.push(
     `-Wl,-rpath,@loader_path${dirname}`,
   )

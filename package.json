@@ -1,6 +1,6 @@
 {
   "name": "hidden-machine",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "Compile javascript node modules into native node modules",
   "main": "index.js",
   "bin": {

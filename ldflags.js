@@ -21,4 +21,10 @@ if ('linux' === platform) {
   )
 }
 
+if ('mac' === platform) {
+  ldflags.push(
+    `-Wl,-rpath,@loader_path${dirname}`,
+  )
+}
+
 module.exports = ldflags.join(' ')

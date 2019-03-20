@@ -14,10 +14,11 @@ const dirname = path.resolve(
 
 const ldflags = []
 
-ldflags.push(
-  `-Wl,-rpath=${dirname}`,
-  `-Wl,-rpath='$$ORIGIN'`,
-)
-
+if ('linux' === platform) {
+  ldflags.push(
+    `-Wl,-rpath=${dirname}`,
+    `-Wl,-rpath='$$ORIGIN'`,
+  )
+}
 
 module.exports = ldflags.join(' ')

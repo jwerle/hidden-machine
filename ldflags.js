@@ -14,13 +14,6 @@ const dirname = path.resolve(
 
 const ldflags = []
 
-if ('darwin' == platform) {
-  ldflags.push(
-    '-install_name',
-    '@rpath/libsodium.dylib',
-  )
-}
-
 ldflags.push(
   `-Wl,-rpath=${dirname}`,
   `-Wl,-rpath='$$ORIGIN'`,

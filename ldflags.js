@@ -16,15 +16,15 @@ const ldflags = []
 
 if ('darwin' == platform) {
   ldflags.push(
-    `-install_name`,
-    `@rpath/libsodium.dylib`,
+    '-install_name',
+    '@rpath/libsodium.dylib',
   )
 }
 
 ldflags.push(
-  `-rpath=${dirname}`,
-  `-rpath='$$ORIGIN'`,
+  `-Wl,-rpath=${dirname}`,
+  `-Wl,-rpath='$$ORIGIN'`,
 )
 
 
-module.exports = ldflags.join(',')
+module.exports = ldflags.join(' ')
